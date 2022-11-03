@@ -19,14 +19,14 @@ import {
   Divider,
 } from './Home.styles'
 
-import BGImage from '../../assets/Images/BGImage.png'
-import AppPreviewImg from '../../assets/Images/AppPreviewImage.png';
-import UsersImg from '../../assets/Images/UsersImage.png';
-import IconLogo from '../../assets/SVGs/IconNLW.svg';
-import IconCheck from '../../assets/SVGs/IconCheck.svg'
+import BGImage from '../assets/Images/BGImage.png'
+import AppPreviewImg from '../assets/Images/AppPreviewImage.png';
+import UsersImg from '../assets/Images/UsersImage.png';
+import IconLogo from '../assets/SVGs/IconNLW.svg';
+import IconCheck from '../assets/SVGs/IconCheck.svg'
 
 interface HomeProps {
-  count: number
+  poolCount: number
 }
 
 export default function Home(props: HomeProps) {
@@ -71,7 +71,7 @@ export default function Home(props: HomeProps) {
             />
             <ContainerTextInfos>
               <TextInfoOne>
-                +1243
+                +{props.poolCount ?? 0}
               </TextInfoOne>
               <TextInfoTwo>
                 Bolões criados
@@ -105,15 +105,12 @@ export default function Home(props: HomeProps) {
   )
 }
 
-{/*export const getServerSideProps = async () => {
+export const getServerSideProps = async () => {
   const response = await fetch('http://localhost:3333/pools/count');
   const data = await response.json()
-
-  console.log(data)
-
   return {
     props: {
-      count: data.count
+      poolCount: data.count
     }
   }
-}*/}
+}
