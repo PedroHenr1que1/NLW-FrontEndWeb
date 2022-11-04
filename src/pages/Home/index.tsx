@@ -1,4 +1,6 @@
-import  Image from 'next/image'
+import { FormEvent, useState } from 'react';
+import  Image from 'next/image';
+import { api } from '../../lib/axios';
 
 import {
   Wrapper,
@@ -19,17 +21,42 @@ import {
   Divider,
 } from './Home.styles'
 
-import BGImage from '../assets/Images/BGImage.png'
-import AppPreviewImg from '../assets/Images/AppPreviewImage.png';
-import UsersImg from '../assets/Images/UsersImage.png';
-import IconLogo from '../assets/SVGs/IconNLW.svg';
-import IconCheck from '../assets/SVGs/IconCheck.svg'
+import BGImage from '../../assets/Images/BGImage.png'
+import AppPreviewImg from '../../assets/Images/AppPreviewImage.png';
+import UsersImg from '../../assets/Images/UsersImage.png';
+import IconLogo from '../../assets/SVGs/IconNLW.svg';
+import IconCheck from '../../assets/SVGs/IconCheck.svg'
 
 interface HomeProps {
-  poolCount: number
+  poolCount: number;
+  guessCount: number;
+  userCount: number;
 }
 
 export default function Home(props: HomeProps) {
+  const [getPoolTitle, setPoolTitle] = useState<string>("");
+
+  async function Createpool(event: FormEvent){
+    event.preventDefault()
+
+    try {
+      const response = await api.post('/pools/create',{
+        title: getPoolTitle
+      })
+
+      const { code } = response.data
+
+      await navigator.clipboard.writeText(code)
+      alert('Bolão criado com sucesso! O código foi copiado para a área de tranferência!')
+      setPoolTitle('')
+
+    } catch(err) {
+      console.log(err)
+      alert('Falha ao criar o bolão! Fala com o Pedro!')
+    }
+
+  }
+
   return (
     <Wrapper image={BGImage}>
       <Container>
@@ -48,14 +75,18 @@ export default function Home(props: HomeProps) {
             quality={100}
           />
           <InfoText>
-            <InfoNumbers>+1234</InfoNumbers> pessoas já usaram isso.
+            <InfoNumbers>+{props.userCount ?? 0}</InfoNumbers> pessoas já usaram isso.
           </InfoText>
         </ContainerUsers>
-        <Form>
+        <Form
+          onSubmit={Createpool}
+        >
           <Input
             type='text'
             required
             placeholder='Qual o nome do seu bolão?'
+            onChange={event => setPoolTitle(event.target.value)}
+            value={getPoolTitle}
           />
           <Button type='submit'>CRIAR MEU BOLÃO</Button>
         </Form>
@@ -87,7 +118,7 @@ export default function Home(props: HomeProps) {
             />
             <ContainerTextInfos>
               <TextInfoOne>
-                +1234
+                +{props.guessCount ?? 0}
               </TextInfoOne>
               <TextInfoTwo>
                 Palpites enviados
@@ -105,12 +136,19 @@ export default function Home(props: HomeProps) {
   )
 }
 
-export const getServerSideProps = async () => {
-  const response = await fetch('http://localhost:3333/pools/count');
-  const data = await response.json()
+export async function getServerSideProps() {
+  const [poolCountResponse, guessCountResponse, userCountResponse] =  await Promise.all([
+    api.get('pools/count'),
+    api.get('guesses/count'),
+    api.get('users/count'),
+  ])
+  console.log(userCountResponse.data)
+
   return {
     props: {
-      poolCount: data.count
+      poolCount: poolCountResponse.data.count,
+      guessCount: guessCountResponse.data.count,
+      userCount: userCountResponse.data.count
     }
   }
 }

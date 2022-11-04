@@ -60,10 +60,14 @@ export const Form = styled.form`
 export const Input = styled.input`
     display: flex;
     flex: 1;
+    font-family: "Roboto";
+    font-size: 14px;
+    color: #C4C4CC;
     padding: 16px 24px;
     border-radius: 4px;
     border-color: #323238;
     border-width: 2px;
+
     ::placeholder{
         color: #C4C4CC;
     }
